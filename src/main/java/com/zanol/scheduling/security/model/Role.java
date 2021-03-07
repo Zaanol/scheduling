@@ -1,4 +1,4 @@
-package com.zanol.scheduling.security;
+package com.zanol.scheduling.security.model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
