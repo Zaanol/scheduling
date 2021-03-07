@@ -1,7 +1,7 @@
 package com.zanol.scheduling.security.rest;
 
 import com.zanol.scheduling.security.model.User;
-import org.jose4j.json.internal.json_simple.JSONObject;
+import org.json.JSONObject;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -9,11 +9,16 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 
 @Path("/user")
 public class SecurityServiceRest {
+
+    @Context
+    SecurityContext securityContext;
 
     @Inject
     EntityManager em;
@@ -23,7 +28,7 @@ public class SecurityServiceRest {
     @Path("{id}")
     public Response getUser(@PathParam("id") Long id) {
         User user = em.find(User.class, id);
-
+        User userRequest = em.createQuery("SELECT u FROM User u where u.code = '" +  securityContext.getUserPrincipal().getName() + "'", User.class).getSingleResult();
         if (user != null) {
             return Response.ok().entity(user).build();
         } else {
