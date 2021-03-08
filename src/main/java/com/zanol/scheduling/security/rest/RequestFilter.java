@@ -10,10 +10,8 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.ext.Provider;
 import java.io.IOException;
-import java.security.Principal;
 
 @Provider
 @PreMatching
@@ -35,26 +33,6 @@ public class RequestFilter implements ContainerRequestFilter {
             return;
         }
 
-        requestContext.setSecurityContext(new SecurityContext() {
-            @Override
-            public Principal getUserPrincipal() {
-                return () -> authenticator.getRequesterUserCode(token);
-            }
-
-            @Override
-            public boolean isUserInRole(String s) {
-                return false;
-            }
-
-            @Override
-            public boolean isSecure() {
-                return false;
-            }
-
-            @Override
-            public String getAuthenticationScheme() {
-                return null;
-            }
-        });
+        requestContext.setSecurityContext(authenticator.createSecurityContext(token));
     }
 }

@@ -8,6 +8,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.zanol.scheduling.security.authentication.model.Credentials;
 
 import javax.inject.Singleton;
+import javax.ws.rs.core.SecurityContext;
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -73,5 +75,29 @@ public class Authenticator {
         } catch (JWTVerificationException e) {
             return null;
         }
+    }
+
+    public SecurityContext createSecurityContext(String token) {
+        return new SecurityContext() {
+            @Override
+            public Principal getUserPrincipal() {
+                return () -> authenticator.getRequesterUserCode(token);
+            }
+
+            @Override
+            public boolean isUserInRole(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean isSecure() {
+                return false;
+            }
+
+            @Override
+            public String getAuthenticationScheme() {
+                return null;
+            }
+        };
     }
 }
