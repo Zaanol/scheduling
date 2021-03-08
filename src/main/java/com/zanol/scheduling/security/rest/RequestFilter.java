@@ -24,7 +24,7 @@ public class RequestFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) throws IOException {
         Authenticator authenticator = Authenticator.getInstance();
 
-        String tokenTeste = authenticator.genarateToken(new Credentials("willian.zanol", "013013wz"));
+        String tokenTeste = authenticator.genarateToken(new Credentials("willian.zanol", "asSd23a1s52!@"));
         System.out.println(tokenTeste);
         String token = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
 
