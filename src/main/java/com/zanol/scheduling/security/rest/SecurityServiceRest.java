@@ -30,7 +30,7 @@ public class SecurityServiceRest {
     @Path("{id}")
     public Response getUser(@PathParam("id") Long id) {
         User user = em.find(User.class, id);
-//        User userRequest = em.createQuery("SELECT u FROM User u where u.code = '" +  securityContext.getUserPrincipal().getName() + "'", User.class).getSingleResult();
+
         if (user != null) {
             return Response.ok().entity(user).build();
         } else {

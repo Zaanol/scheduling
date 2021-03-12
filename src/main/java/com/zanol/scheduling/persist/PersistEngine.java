@@ -36,8 +36,24 @@ public class PersistEngine {
         return objectList;
     }
 
+    public static Object getObject(EntityManager em, Class<?> clazz, Object key, Object value) {
+        String query = "SELECT O FROM " + clazz.getCanonicalName() + " O WHERE " + key + " = '" + value + "'";
+
+        return getObject(em, query);
+    }
+
     public static Object getObject(EntityManager em, Class<?> clazz, Object id) {
         return em.find(clazz, id);
+    }
+
+    public static Object getObject(EntityManager em, String query) {
+        Query q = em.createQuery(query);
+
+        try {
+            return q.getSingleResult();
+        }catch (NoResultException e) {
+            return null;
+        }
     }
 
     public static List<Object> getObjects(EntityManager em, Class<?> clazz) {
@@ -53,7 +69,11 @@ public class PersistEngine {
     public static List<Object> getObjects(EntityManager em, String query) {
         Query q = em.createQuery(query);
 
-        return new ArrayList<Object>(q.getResultList());
+        try {
+            return new ArrayList<Object>(q.getResultList());
+        }catch (NoResultException e) {
+            return null;
+        }
     }
 
     public static void remove(EntityManager em, Object object) {

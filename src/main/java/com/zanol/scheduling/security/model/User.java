@@ -1,5 +1,7 @@
 package com.zanol.scheduling.security.model;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -56,5 +58,17 @@ public class User extends SecurityEntity{
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public Boolean isValidPassword(String password) {
+        try {
+            return BCrypt.checkpw(password, this.getPassword());
+        }catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public void encryptPassword() {
+        this.password = BCrypt.hashpw(this.getPassword(), BCrypt.gensalt());
     }
 }
