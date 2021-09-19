@@ -1,6 +1,9 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { Button } from '@material-ui/core';
+import { BiAlarm } from "react-icons/bi";
+import {InputBase} from "./components/InputBase";
 
 function App() {
   return (
@@ -18,7 +21,9 @@ function App() {
         >
           Learn React
         </a>
+          <InputBase color='secondary' onChange={(e) => console.log(e)} value='aaaaaa'/>
       </header>
+      <Button variant="contained" color="primary">Hello World <BiAlarm/></Button>
     </div>
   );
 }
