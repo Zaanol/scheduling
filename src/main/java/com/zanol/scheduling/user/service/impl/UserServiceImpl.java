@@ -27,6 +27,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> getUserByCode(String code) {
+        return userRepository.findByCode(code);
+    }
+
+    @Override
     public Optional<User> createUser(User user) {
         return Optional.ofNullable(Objects.isNull(user.getId())
                 ? userRepository.save(user)

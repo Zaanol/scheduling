@@ -1,9 +1,8 @@
 package com.zanol.scheduling.user.model;
 
-//import org.mindrot.jbcrypt.BCrypt;
-
 import com.zanol.scheduling.security.model.Role;
 import com.zanol.scheduling.security.model.SecurityEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -31,7 +30,7 @@ public class User extends SecurityEntity {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);
     }
 
     @Override
@@ -65,15 +64,10 @@ public class User extends SecurityEntity {
 
     public Boolean isValidPassword(String password) {
         try {
-            //return BCrypt.checkpw(password, this.getPassword());
-            return false;
+            return new BCryptPasswordEncoder().matches(password, this.getPassword());
         } catch (IllegalArgumentException e) {
             return false;
         }
-    }
-
-    public void encryptPassword() {
-        //this.password = BCrypt.hashpw(this.getPassword(), BCrypt.gensalt());
     }
 
     public User clone() {
