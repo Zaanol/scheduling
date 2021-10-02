@@ -1,10 +1,7 @@
 package com.zanol.scheduling.security.authentication.service;
 
-import com.zanol.scheduling.security.authentication.model.Credentials;
+import com.zanol.scheduling.security.authentication.model.AuthRequest;
 
 public interface AuthenticationService {
-
-    String generateToken(Credentials credentials);
-
-    Boolean isValidCredentials(Credentials credentials);
+    String generateToken(AuthRequest authRequest);
 }

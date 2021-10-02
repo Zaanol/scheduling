@@ -1,4 +1,4 @@
-package com.zanol.scheduling.security;
+package com.zanol.scheduling.security.authentication.service;
 
 import com.zanol.scheduling.user.model.User;
 import com.zanol.scheduling.user.service.UserService;
@@ -26,7 +26,7 @@ public class MyUserDetailsService implements UserDetailsService {
 
             return new org.springframework.security.core.userdetails.User(code, user.getPassword(), new ArrayList<>());
         } else {
-            throw new RuntimeException("User not found");
+            throw new RuntimeException("User not found!");
         }
     }
 }

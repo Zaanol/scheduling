@@ -1,82 +1,56 @@
-/*
 package com.zanol.scheduling.security.authentication;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.zanol.scheduling.security.authentication.model.Credentials;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Base64;
 import java.util.Date;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 @Scope("singleton")
 public class Authenticator {
 
-    private static Authenticator authenticator;
-    private final byte[] secret = Base64.getDecoder().decode("U0Rhc3NjaMOJZDBsaW5nMjNkNDU2IUAjIUAjw6dzNTI0YXNk");
-    private final Algorithm algorithm = Algorithm.HMAC512(secret);
-    private final String issuer = "Scheduling Authentication";
-    private final String authScheme = "Bearer ";
+    private final String SECRET_KEY = "secret";
 
-    public static Authenticator getInstance() {
-        if (Objects.isNull(authenticator)) {
-            authenticator = new Authenticator();
-        }
-
-        return authenticator;
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
-    public String genarateToken(Credentials credentials) {
-        return JWT.create()
-                .withSubject(credentials.getUserCode())
-                .withIssuer(issuer)
-                .withIssuedAt(new Date())
-                .withExpiresAt(
-                        Date.from(
-                                LocalDateTime.now().plusMinutes(30L)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toInstant()
-                        )
-                )
-                .sign(algorithm);
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
-    public Boolean isTokenValid(String token) {
-        try {
-            token = token.replace(authScheme, "");
-
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(issuer)
-                    .build();
-
-            verifier.verify(token);
-
-            return true;
-        } catch (JWTVerificationException | NullPointerException e) {
-            return false;
-        }
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+    private Claims extractAllClaims(String token) {
+        return Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).getBody();
     }
 
-    public String getRequesterUserCode(String token) {
-        try {
-            token = token.replace(authScheme, "");
-
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer(issuer)
-                    .build();
-
-            DecodedJWT decodedJWT = verifier.verify(token);
-            return decodedJWT.getSubject();
-        } catch (JWTVerificationException e) {
-            return null;
-        }
+    private Boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
     }
-}*/
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+}
