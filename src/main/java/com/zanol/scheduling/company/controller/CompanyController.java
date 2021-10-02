@@ -1,44 +1,43 @@
 package com.zanol.scheduling.company.controller;
 
 import com.zanol.scheduling.company.model.Company;
-import com.zanol.scheduling.company.repository.CompanyRepository;
+import com.zanol.scheduling.company.service.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/company")
 public class CompanyController {
 
     @Autowired
-    CompanyRepository companyRepository;
+    CompanyService companyService;
 
-    @GetMapping("/companies")
-    public ResponseEntity<List<Company>> getAllCompanies() {
-        return new ResponseEntity<>(companyRepository.findAll(), HttpStatus.OK);
+    @GetMapping("")
+    public ResponseEntity<List<Company>> getAllCompanies(@RequestParam(required = false) String name, @RequestParam(required = false) String tin) {
+        return new ResponseEntity<>(companyService.getAll(name, tin), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable("id") Long id) {
-        Optional<Company> companyData = companyRepository.findById(id);
-
-        return companyData.map(company -> new ResponseEntity<>(company, HttpStatus.OK))
-            .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return companyService.getById(id).map(company -> new ResponseEntity<>(company, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping("")
     public ResponseEntity<Company> createCompany(@RequestBody Company company) {
-        if (Objects.isNull(company.getId())) {
-            company = companyRepository.save(company);
+        return companyService.create(company)
+                .map(created -> new ResponseEntity<>(created, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.CONFLICT));
+    }
 
-            return new ResponseEntity<>(company, HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<Company> updateCompany(@PathVariable("id") Long id, @RequestBody Company company) {
+        return companyService.update(id, company)
+                .map(updated -> new ResponseEntity<>(updated, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 }

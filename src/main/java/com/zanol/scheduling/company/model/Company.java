@@ -15,16 +15,16 @@ public class Company {
 
     @Column(unique=true)
     @NotBlank(message = "Cnpj can't be blank")
-    private String cnpj;
+    private String tin;
 
     private Boolean active;
 
     public Company() {
     }
 
-    public Company(String name, String cnpj) {
+    public Company(String name, String tin) {
         this.name = name;
-        this.cnpj = cnpj;
+        this.tin = tin;
     }
 
     public Long getId() {
@@ -39,12 +39,12 @@ public class Company {
         this.name = name;
     }
 
-    public String getCnpj() {
-        return cnpj;
+    public String getTin() {
+        return tin;
     }
 
-    public void setCnpj(String cnpj) {
-        this.cnpj = cnpj;
+    public void setTin(String cnpj) {
+        this.tin = cnpj;
     }
 
     public Boolean getActive() {
